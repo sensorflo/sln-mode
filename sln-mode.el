@@ -103,6 +103,10 @@ Source: http://www.mztools.com/articles/2008/mz2008017.aspx at bottom.")
   "Hash table: key=uuid, value=description.")
 (make-variable-buffer-local 'sln-uuid-hashtable)
 
+(defvar sln-uuid-reverse-hashtable nil
+  "Reverse of `sln-uuid-hashtable', thus key=description value=uuid.")
+(make-variable-buffer-local 'sln-uuid-reverse-hashtable)
+
 (defconst sln-font-lock-keywords
   (list
    (list sln-re-project-def
@@ -134,7 +138,58 @@ Source: http://www.mztools.com/articles/2008/mz2008017.aspx at bottom.")
             sln-uuid-projecttype-alist)
       (goto-char (point-min))
       (while (re-search-forward sln-re-project-def nil t)
-        (puthash (match-string-no-properties 4) (match-string-no-properties 2) sln-uuid-hashtable)))))
+        (puthash (match-string-no-properties 4) (match-string-no-properties 2) sln-uuid-hashtable))
+
+      (setq sln-uuid-reverse-hashtable
+            (make-hash-table
+             :test (hash-table-test sln-uuid-hashtable)
+             :size (hash-table-size sln-uuid-hashtable)))
+      (maphash (lambda(k v) (puthash v k sln-uuid-reverse-hashtable))
+               sln-uuid-hashtable))))
+
+(defun sln-replace-description-by-uuid()
+  "Replaces the description at point with it's associated uuid.
+
+The uuid associated with the given description is looked up in
+`sln-uuid-reverse-hashtable'.
+
+The description is either enclosed in curly braces or is a single
+word, in that order of priority. Point can be either within the
+description, at the end of it, or at the beginning, in that order
+of priority.
+
+If the 'description' is already an uuid occuring in the table,
+then nothing is done."
+  (interactive)
+  (if (or
+       ;; description in curly braces
+       (and (save-excursion
+              (re-search-backward "{[^{}\"\n]*}?\\s-*\\=" nil t)
+              (looking-at "{\\([^{}\"\n]*\\)}")))
+       ;; description as a single word
+       (and (save-excursion
+              (re-search-backward "\\b\\sw+\\s-*\\=" nil t)
+              (looking-at "\\(\\sw+\\)"))))
+      (let* ((description-raw (match-string-no-properties 1))
+             (description-full (match-string-no-properties 0))
+             (uuid (gethash description-raw sln-uuid-reverse-hashtable))
+             (replace-match-with
+              (lambda (replacement)
+                (goto-char (match-beginning 1))
+                (delete-region (match-beginning 0) (match-end 0))
+                (insert "{" replacement "}"))))
+        (if uuid
+            (funcall replace-match-with uuid)
+          (cond
+           ((save-match-data (string-match (concat "\\`" sln-re-uuid "\\'") description-full))
+            (message "'%s' is already an valid uuid" description-raw))
+           ((save-match-data (string-match (concat "\\`" sln-re-uuid-raw "\\'") description-full))
+            (funcall replace-match-with description-raw)
+            (message "'%s' is already an valid uuid. Canonicalized it by enclosing it in curly braces {}."
+                     description-raw))
+           (t
+            (error "Don't know uuid of '%s'" description-raw)))))
+    (error "Point is not within or next to an description")))
 
 (defun sln-unfontify-region-function (beg end)
   "sln-mode's function for `font-lock-unfontify-region-function'."
