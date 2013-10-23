@@ -68,6 +68,8 @@ Subgroups:
          (list 1 'font-lock-function-name-face t)
          (list 3 'font-lock-function-name-face t))
    (list 'sln-keyword-function-put-overlay)
+   (list (concat "^\\s-*" sln-re-uuid "\\s-*\\(=\\s-*" sln-re-uuid "\\s-*\\(?:\n\\|\\'\\)\\)")
+         (list 1 'font-lock-semi-unimportant t))
    (list sln-re-uuid-raw (list 0 'font-lock-unimportant t))
    ))
 
