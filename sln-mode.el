@@ -191,6 +191,25 @@ then nothing is done."
             (error "Don't know uuid of '%s'" description-raw)))))
     (error "Point is not within or next to an description")))
 
+(defun sln-replace-description-by-uuid-dwim()
+  "Do-what-I-mean variant of `sln-replace-description-by-uuid'."
+  (interactive)
+  (call-interactively 'sln-replace-description-by-uuid)
+  ;; auto complete redundant part of an ProjectDependencies list element
+  (save-excursion
+    (end-of-line)
+    (skip-syntax-backward "-")
+    (when (looking-back
+           (concat
+            "^\\s-*ProjectSection(ProjectDependencies)\\s-*=.*\n"
+            "\\(?:\\s-*" sln-re-uuid "\\s-*=\\s-*" sln-re-uuid "\\s-*\n\\)*"
+            "\\s-*\\(" sln-re-uuid "\\)\\s-*=?"))
+      (if (eq (char-before) ?\=)
+          (insert " ")
+        (insert " = "))
+      (insert (match-string-no-properties 1))
+      (delete-region (point) (re-search-forward "\\s-*?$" nil t)))))
+
 (defun sln-unfontify-region-function (beg end)
   "sln-mode's function for `font-lock-unfontify-region-function'."
   (font-lock-default-unfontify-region beg end)
@@ -219,9 +238,10 @@ Turning on sln mode runs the normal hook `sln-mode-hook'."
   (modify-syntax-entry ?> ".")
   (modify-syntax-entry ?\\ ".")
   (modify-syntax-entry ?| ".")
-  (modify-syntax-entry ?_ ".")
   (modify-syntax-entry ?\; ".")
   (modify-syntax-entry ?\" "\"")
+  (modify-syntax-entry ?\_ "w")
+  (modify-syntax-entry ?\- "w")
   (modify-syntax-entry ?\# "<")
   (modify-syntax-entry ?\n ">")
   (modify-syntax-entry ?\r ">")
