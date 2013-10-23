@@ -29,6 +29,8 @@
 ;; A major-mode for msvc's *.sln files. Is currently only about syntax
 ;; highlightening.
 
+(require 'font-lock-ext) ; https://github.com/sensorflo/font-lock-ext/
+
 
 ;;; Variables:
 (defvar sln-mode-hook nil
@@ -62,11 +64,12 @@ Subgroups:
 
 (defconst sln-font-lock-keywords
   (list
-   (cons sln-re-uuid 'font-lock-constant-face)
    (list sln-re-project-def
          (list 1 'font-lock-function-name-face t)
          (list 3 'font-lock-function-name-face t))
-   (list 'sln-keyword-function-put-overlay)))
+   (list 'sln-keyword-function-put-overlay)
+   (list sln-re-uuid-raw (list 0 'font-lock-unimportant t))
+   ))
 
 
 ;;; Code:
