@@ -259,9 +259,21 @@ Turning on sln mode runs the normal hook `sln-mode-hook'."
   (set (make-local-variable 'font-lock-unfontify-region-function)
        'sln-unfontify-region-function)
   
+  ;; (easy) menu
+  (easy-menu-define
+    sln-mode-menu sln-mode-map "Menu for sln mode"
+    `("sln"
+      ["Replace description by uuid dwim" sln-replace-description-by-uuid-dwim]))
+  ;; easy-menu-add is called later
+
   ;; auto runned stuff
   (sln-parse)
-  (run-hooks 'sln-mode-hook))
+  (run-hooks 'sln-mode-hook)
+
+  ;; depended on sln-mode-hooks already runned
+
+  ;; so menu can capture bindings potentially defined by hooks
+  (easy-menu-add sln-mode-menu))
 
 
 (provide 'sln-mode)
