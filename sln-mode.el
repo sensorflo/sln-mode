@@ -99,9 +99,9 @@ Subgroups:
   "Alist of known projectype uuids.
 Source: http://www.mztools.com/articles/2008/mz2008017.aspx at bottom.")
 
-(defvar sln-uuid-alist nil
-  "alist: key=uuid, value=description.")
-(make-variable-buffer-local 'sln-uuid-alist)
+(defvar sln-uuid-hashtable (make-hash-table :test 'equal)
+  "Hash table: key=uuid, value=description.")
+(make-variable-buffer-local 'sln-uuid-hashtable)
 
 (defconst sln-font-lock-keywords
   (list
@@ -119,27 +119,22 @@ Source: http://www.mztools.com/articles/2008/mz2008017.aspx at bottom.")
 (defun sln-keyword-function-put-overlay(end)
   (when (re-search-forward (concat "{\\(" sln-re-uuid-raw "\\)\\(}\\)") end t)
     (let* ((o (make-overlay (match-end 2) (match-end 2)))
-           (projectname-raw
-            (cdr (assoc (match-string-no-properties 1) sln-uuid-alist)))
            (projectname
-            (concat (concat "(=" (or projectname-raw "unknown") ")"))))
-      (overlay-put o 'after-string projectname)
+            (gethash (match-string-no-properties 1) sln-uuid-hashtable "unknown")))
+      (overlay-put o 'after-string (concat "(=" projectname ")"))
       t)))
 
 (defun sln-parse()
-  "Parses current buffer to generate `sln-uuid-alist'"
+  "Parses current buffer to generate `sln-uuid-hashtable'"
   (interactive)
   (save-excursion
     (save-restriction
-      (setq sln-uuid-alist
-            (mapcar (lambda(x) (cons (car x) (concat "projecttype:" (cdr x))))
-                    sln-uuid-projecttype-alist))
+      (clrhash sln-uuid-hashtable)
+      (mapc (lambda(x) (puthash (car x) (concat "projecttype:" (cdr x)) sln-uuid-hashtable))
+            sln-uuid-projecttype-alist)
       (goto-char (point-min))
       (while (re-search-forward sln-re-project-def nil t)
-        (setq sln-uuid-alist
-              (cons (cons (match-string-no-properties 4)
-                          (match-string-no-properties 2))
-                    sln-uuid-alist))))))
+        (puthash (match-string-no-properties 4) (match-string-no-properties 2) sln-uuid-hashtable)))))
 
 (defun sln-unfontify-region-function (beg end)
   "sln-mode's function for `font-lock-unfontify-region-function'."
