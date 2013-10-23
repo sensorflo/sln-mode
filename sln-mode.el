@@ -108,13 +108,15 @@ Source: http://www.mztools.com/articles/2008/mz2008017.aspx at bottom.")
 
 (defconst sln-font-lock-keywords
   (list
-   (list sln-re-project-def
-         (list 1 'font-lock-function-name-face t)
-         (list 3 'font-lock-function-name-face t))
    (list 'sln-keyword-function-put-overlay)
    (list (concat "^\\s-*" sln-re-uuid "\\s-*\\(=\\s-*" sln-re-uuid "\\s-*\\(?:\n\\|\\'\\)\\)")
          (list 1 'font-lock-semi-unimportant t))
    (list sln-re-uuid-raw (list 0 'font-lock-unimportant t))
+   ;; _after_ highlighting uuid's as unimportant so the project's uuid is
+   ;; highlighted as defined by the following font lock keyword
+   (list sln-re-project-def
+         (list 1 'font-lock-function-name-face t)
+         (list 3 'font-lock-semi-unimportant t))
    ))
 
 
