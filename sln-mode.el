@@ -143,7 +143,7 @@ nothing when the uuid is a definition rather than a reference."
   (save-excursion
     (save-restriction
       (clrhash sln-uuid-hashtable)
-      (mapc (lambda(x) (puthash (car x) (concat "projecttype:" (cdr x)) sln-uuid-hashtable))
+      (mapc (lambda(x) (puthash (car x) (cdr x) sln-uuid-hashtable))
             sln-uuid-projecttype-alist)
       (goto-char (point-min))
       (while (re-search-forward sln-re-project-def nil t)
