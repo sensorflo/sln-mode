@@ -71,14 +71,13 @@ Subgroups:
 
 ;;; Code:
 (defun sln-keyword-function-put-overlay(end)
-  (when (re-search-forward
-         (concat "^\\s-*{\\(" sln-re-uuid-raw "\\)}\\s-*=\\s-*{\\1}")
-         end t)
-    (let ((o (make-overlay (match-end 0) (match-end 0)))
-          (projectname-raw
-           (cdr (assoc (match-string-no-properties 1) sln-uuid-projectname-alist))))
-      (overlay-put o 'after-string
-                   (concat " (=" (or projectname-raw "unknown") ")"))
+  (when (re-search-forward (concat "{\\(" sln-re-uuid-raw "\\)\\(}\\)") end t)
+    (let* ((o (make-overlay (match-end 2) (match-end 2)))
+           (projectname-raw
+            (cdr (assoc (match-string-no-properties 1) sln-uuid-projectname-alist)))
+           (projectname
+            (concat (concat "(=" (or projectname-raw "unknown") ")"))))
+      (overlay-put o 'after-string projectname)
       t)))
 
 (defun sln-parse()
