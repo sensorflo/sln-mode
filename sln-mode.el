@@ -121,10 +121,10 @@ Source: http://www.mztools.com/articles/2008/mz2008017.aspx at bottom.")
 ;;; Code:
 (defun sln-keyword-function-put-overlay(end)
   (when (re-search-forward (concat "{\\(" sln-re-uuid-raw "\\)\\(}\\)") end t)
-    (let* ((o (make-overlay (match-end 2) (match-end 2)))
+    (let* ((o (make-overlay (match-beginning 2) (match-end 2)))
            (projectname
             (gethash (match-string-no-properties 1) sln-uuid-hashtable "unknown")))
-      (overlay-put o 'after-string (concat "(=" projectname ")"))
+      (overlay-put o 'before-string (concat "(=" projectname ")"))
       t)))
 
 (defun sln-parse()
