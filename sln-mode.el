@@ -26,8 +26,7 @@
 ;; 
 ;;; Commentary:
 ;; 
-;; A major-mode for msvc's *.sln files. Is currently only about syntax
-;; highlightening.
+;; A major-mode for msvc's *.sln files.
 
 (require 'font-lock-ext) ; https://github.com/sensorflo/font-lock-ext/
 
