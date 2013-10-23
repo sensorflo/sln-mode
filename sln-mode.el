@@ -208,7 +208,8 @@ then nothing is done."
           (insert " ")
         (insert " = "))
       (insert (match-string-no-properties 1))
-      (delete-region (point) (re-search-forward "\\s-*?$" nil t)))))
+      (delete-region (point) (re-search-forward "\\s-*?$" nil t))
+      (indent-according-to-mode))))
 
 (defun sln-unfontify-region-function (beg end)
   "sln-mode's function for `font-lock-unfontify-region-function'."
@@ -217,6 +218,36 @@ then nothing is done."
   ;; todo: this is an extremely brute force solution and interacts very badly
   ;; with many (minor) modes using overlays such as flyspell or ediff
   (remove-overlays beg end))
+
+(defun sln-indent-line-function ()
+  "sln-mode's function for `indent-line-function'."
+  ;; In the regexps [ \t] instead \s- is used since only horizontal blanks are
+  ;; of interest
+  (save-excursion
+    (let* ((re-heading-start "\\(?:Project\\|Global\\)\\(?:Section\\)?\\b")
+           (re-heading-end (concat "End" re-heading-start))
+           (above-ref-column
+            (save-excursion
+              (beginning-of-line 0)
+              (re-search-forward "[ \t]*")
+              (when (looking-at re-heading-start)
+                (forward-char 2))
+              (current-column)))
+           (offset 0)
+           (final-column 0))
+      (beginning-of-line)
+      (when (looking-at (concat "[ \t]*" re-heading-end))
+        (setq offset -2))
+      (setq final-column (+ above-ref-column offset))
+      (unless (equal final-column
+                     (save-excursion
+                       (re-search-forward "\\=[ \t]*")
+                       (current-column)))
+        (delete-region (point) (re-search-forward "\\=[ \t]*"))
+        (indent-to final-column))))
+  ;; when within leading horizontal blanks move point accross them
+  (when (looking-back "^[ \t]*")
+    (re-search-forward "\\=[ \t]+")))
 
 ;;;###autoload
 (define-derived-mode sln-mode text-mode "sln"
@@ -259,6 +290,11 @@ Turning on sln mode runs the normal hook `sln-mode-hook'."
   (set (make-local-variable 'font-lock-unfontify-region-function)
        'sln-unfontify-region-function)
   
+  ;; indentation
+  (set (make-local-variable 'indent-line-function)
+       'sln-indent-line-function)
+  (set (make-local-variable 'indent-tabs-mode) t)
+
   ;; (easy) menu
   (easy-menu-define
     sln-mode-menu sln-mode-map "Menu for sln mode"
