@@ -70,6 +70,7 @@ Subgroups:
    '("C252FEB5-A946-4202-B1D4-9916A0590387" . "Visual Database Tools")
    '("A9ACE9BB-CECE-4E62-9AA4-C7E7C5BD2124" . "Database")
    '("4F174C21-8C12-11D0-8340-0000F80270F8" . "Database (other project types)")
+   '("00D1A9C2-B5F0-4AF3-8072-F6C62B433612" . "SQL Database")
    '("3AC096D0-A1C2-E12C-1390-A8335801FDAB" . "Test")
    '("20D4826A-C6FA-45DB-90F4-C717570B9F32" . "Legacy (2003) Smart Device (C#)")
    '("CB4CE8C6-1BDB-4DC7-A4D3-65A1999772F8" . "Legacy (2003) Smart Device (VB.NET)")
@@ -94,7 +95,8 @@ Subgroups:
    '("F85E285D-A4E0-4152-9332-AB1D724D3325" . "ASP.NET MVC 2.0")
    '("E53F8FEA-EAE0-44A6-8774-FFD645390401" . "ASP.NET MVC 3.0")
    '("E3E379DF-F4C6-4180-9B81-6769533ABE47" . "ASP.NET MVC 4.0")
-   '("82B43B9B-A64C-4715-B499-D71E9CA2BD60" . "Extensibility"))
+   '("82B43B9B-A64C-4715-B499-D71E9CA2BD60" . "Extensibility")
+   '("2150E333-8FDC-42A3-9474-1A3956D46DE8" . "Solution Folder"))
   "Alist of known projectype uuids.
 Source: http://www.mztools.com/articles/2008/mz2008017.aspx at bottom.")
 
